@@ -1,0 +1,32 @@
+{
+  "name": "coaching-assessment",
+  "version": "1.0.0",
+  "description": "A 5-page assessment tool with radar chart visualization for coaching and development",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -p 3000",
+    "dev": "npx serve . -p 3000 -l",
+    "build": "echo 'No build step required - static files only'",
+    "preview": "npx serve . -p 8080"
+  },
+  "keywords": [
+    "assessment",
+    "coaching",
+    "radar-chart",
+    "product-management",
+    "evaluation"
+  ],
+  "author": "Lindsay Kloepping",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/coaching-assessment.git"
+  },
+  "homepage": "https://yourusername.github.io/coaching-assessment"
+}
