@@ -223,8 +223,27 @@ function isPageComplete(pageIndex) {
 }
 
 function computeAverages(state) {
-  // Average each page's 10 answers, result within 0–5
+  // Average each page's 5 answers, result within 0–5
   return state.pages.map(arr => arr.reduce((a, b) => a + (b ?? 0), 0) / arr.length);
+}
+
+function computeTotalPoints(state) {
+  // Sum all answers across all pages
+  return state.pages.reduce((total, page) => {
+    return total + page.reduce((pageTotal, answer) => pageTotal + (answer ?? 0), 0);
+  }, 0);
+}
+
+function getClassification(totalPoints) {
+  if (totalPoints >= 100 && totalPoints <= 125) {
+    return "Highly Coachable";
+  } else if (totalPoints >= 75 && totalPoints <= 99) {
+    return "Coachable with Guidance";
+  } else if (totalPoints >= 50 && totalPoints <= 74) {
+    return "Partially Coachable";
+  } else {
+    return "Not Yet Ready";
+  }
 }
 
 let chartInstance = null;
@@ -246,8 +265,15 @@ function renderResults(state) {
   const side = document.createElement("div");
   side.className = "card";
   const scores = computeAverages(state);
+  const totalPoints = computeTotalPoints(state);
+  const classification = getClassification(totalPoints);
   side.innerHTML = `
-    <div style="font-weight:700; margin-bottom:8px;">Scores</div>
+    <div style="font-weight:700; margin-bottom:8px;">Overall Assessment</div>
+    <div style="margin-bottom:12px; padding:12px; background: var(--muted); border-radius: 8px;">
+      <div style="font-size:24px; font-weight:700; color: var(--primary); margin-bottom:4px;">${totalPoints} / 125</div>
+      <div style="font-weight:600; color: var(--foreground);">${classification}</div>
+    </div>
+    <div style="font-weight:700; margin-bottom:8px;">Dimension Scores (Averages)</div>
     <div>${state.labels.map((l, i) => `<div style=\"display:flex;justify-content:space-between;margin:4px 0;\"><span>${l}</span><strong>${scores[i].toFixed(2)}</strong></div>`).join("")}</div>
     <hr style="border-color: var(--border); margin: 12px 0;" />
     <div style="display:flex; gap:8px; flex-wrap: wrap;">
@@ -392,7 +418,7 @@ function renderResults(state) {
   container.addEventListener("click", (e) => {
     const t = e.target;
     if (!(t instanceof HTMLElement)) return;
-    if (t.id === "download-png") downloadChartPNG(canvas, state.labels, scores);
+    if (t.id === "download-png") downloadChartPNG(canvas, state.labels, scores, totalPoints, classification);
     if (t.id === "download-csv") downloadCSV(state);
     if (t.id === "start-over") { localStorage.removeItem(STATE_KEY); render(); }
   });
@@ -402,11 +428,11 @@ function renderResults(state) {
 
 function getVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 
-function downloadChartPNG(chartCanvas, labels, scores) {
+function downloadChartPNG(chartCanvas, labels, scores, totalPoints, classification) {
   const padding = 24;
   const rowHeight = 24;
   const headerHeight = 28;
-  const tableRows = labels.length;
+  const tableRows = labels.length + 2; // +2 for total score and classification
   const tableHeight = headerHeight + tableRows * rowHeight + padding;
   const width = Math.max(chartCanvas.width, 640);
   const height = chartCanvas.height + tableHeight + padding;
@@ -443,9 +469,27 @@ function downloadChartPNG(chartCanvas, labels, scores) {
   const labelX = padding;
   const scoreX = width - padding;
   ctx.font = "400 16px Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+  
+  // Total score row
+  let y = startY + 8 + headerHeight;
+  ctx.fillStyle = getVar("--primary") || "#5b8def";
+  ctx.font = "600 16px Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+  ctx.fillText("Total Score", labelX, y);
+  const totalText = `${totalPoints} / 125`;
+  const totalMetrics = ctx.measureText(totalText);
+  ctx.fillText(totalText, scoreX - totalMetrics.width, y);
+  
+  // Classification row
+  y += rowHeight;
+  ctx.fillText("Classification", labelX, y);
+  const classMetrics = ctx.measureText(classification);
+  ctx.fillText(classification, scoreX - classMetrics.width, y);
+  
+  // Dimension scores
+  ctx.font = "400 16px Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+  ctx.fillStyle = getVar("--foreground") || "#111827";
   for (let i = 0; i < labels.length; i++) {
-    const y = startY + 8 + headerHeight + i * rowHeight;
-    ctx.fillStyle = getVar("--foreground") || "#111827";
+    y += rowHeight;
     ctx.fillText(labels[i], labelX, y);
     const scoreText = String(scores[i].toFixed(2));
     const metrics = ctx.measureText(scoreText);
@@ -455,7 +499,7 @@ function downloadChartPNG(chartCanvas, labels, scores) {
   const url = out.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = url;
-  a.download = "assessment-radar-with-scores.png";
+  a.download = "coaching-readiness-assessment.png";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -463,8 +507,14 @@ function downloadChartPNG(chartCanvas, labels, scores) {
 
 function downloadCSV(state) {
   const scores = computeAverages(state);
+  const totalPoints = computeTotalPoints(state);
+  const classification = getClassification(totalPoints);
   const rows = [
-    ["Dimension", "Score"],
+    ["Overall Assessment", ""],
+    ["Total Points", totalPoints],
+    ["Classification", classification],
+    ["", ""],
+    ["Dimension", "Average Score"],
     ...state.labels.map((l, i) => [l, scores[i].toFixed(2)])
   ];
   const csv = rows.map(r => r.join(",")).join("\n");
@@ -472,7 +522,7 @@ function downloadCSV(state) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "assessment-scores.csv";
+  a.download = "coaching-readiness-assessment.csv";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
