@@ -8,7 +8,7 @@ const STATE_KEY = "assessment_state_v1";
  * Initialize app state. pages[pageIndex][questionIndex] => number | null (0-5)
  */
 function createInitialState() {
-  const pages = Array.from({ length: 5 }, () => Array(10).fill(null));
+  const pages = Array.from({ length: 5 }, () => Array(5).fill(null));
   const labels = (window.QUESTIONS && Array.isArray(window.QUESTIONS.labels) && window.QUESTIONS.labels.length === 5)
     ? window.QUESTIONS.labels
     : [
@@ -85,8 +85,8 @@ function renderHeader(title, subtitle, progressRatio, showRestart) {
 }
 
 function renderCover() {
-  const title = "Product Manager Assessment";
-  const subtitle = "Five short sections • Ten statements each • 0–5 rating scale";
+  const title = "Coaching Readiness Assessment";
+  const subtitle = "Five short sections • Five statements each • 0–5 rating scale";
 
   const start = document.createElement("button");
   start.className = "primary";
@@ -110,7 +110,7 @@ function renderCover() {
         <div class="card" style="padding:12px;">
           <div style="font-weight:700; margin-bottom:6px;">How it works</div>
           <ul style="margin:0; padding-left:18px; line-height:1.6;">
-            <li>5 pages, 10 statements per page</li>
+            <li>5 pages, 5 statements per page</li>
             <li>Rate each statement 0–5 based on how much it reflects you</li>
             <li>See a radar chart summary at the end</li>
           </ul>
@@ -123,7 +123,7 @@ function renderCover() {
         </div>
         <div class="card" style="padding:12px;">
           <div style="font-weight:700; margin-bottom:6px;">Time</div>
-          <p style="margin:0;">About 6–8 minutes. You can navigate back before you submit.</p>
+          <p style="margin:0;">About 3–5 minutes. You can navigate back before you submit.</p>
         </div>
       </div>
       <p style="margin:0; color: var(--muted-foreground);">Your responses are stored only in your browser. You can download your results as an image and CSV.</p>
@@ -144,15 +144,15 @@ function renderCover() {
 function renderAssessment(state) {
   const pageIndex = state.currentPage;
   const pageTitle = `${(window.QUESTIONS?.labels?.[pageIndex]) || `Page ${pageIndex + 1}`}`;
-  const subtitle = `Answer all 10 questions. Tap a number from 0–5.`;
+  const subtitle = `Answer all 5 questions. Tap a number from 0–5.`;
   const progressRatio = (pageIndex) / 6; // reserve last step for results
 
   const grid = document.createElement("div");
   grid.className = "grid";
 
   const answers = state.pages[pageIndex];
-  const texts = window.QUESTIONS?.pages?.[pageIndex] || Array.from({ length: 10 }, (_, i) => `Question ${i + 1}`);
-  for (let i = 0; i < 10; i++) {
+  const texts = window.QUESTIONS?.pages?.[pageIndex] || Array.from({ length: 5 }, (_, i) => `Question ${i + 1}`);
+  for (let i = 0; i < 5; i++) {
     const q = document.createElement("div");
     q.className = "question card";
     const label = document.createElement("div");
