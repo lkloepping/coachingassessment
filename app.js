@@ -354,6 +354,145 @@ function renderResults(state) {
   });
   analysisCard.appendChild(analysisWrap);
 
+  // Contact form to capture user information
+  const contactCard = document.createElement("div");
+  contactCard.className = "card";
+  const contactTitle = document.createElement("div"); 
+  contactTitle.style.fontWeight = "700"; 
+  contactTitle.style.marginBottom = "8px"; 
+  contactTitle.textContent = "Save Your Results";
+  contactCard.appendChild(contactTitle);
+  
+  const contactSubtitle = document.createElement("p");
+  contactSubtitle.style.color = "var(--muted-foreground)";
+  contactSubtitle.style.marginBottom = "16px";
+  contactSubtitle.textContent = "Enter your information to receive a copy of your assessment results via email.";
+  contactCard.appendChild(contactSubtitle);
+
+  const form = document.createElement("form");
+  form.action = "https://formsubmit.co/your-email@example.com"; // Replace with your email
+  form.method = "POST";
+  form.style.display = "grid";
+  form.style.gap = "12px";
+
+  // Hidden fields for FormSubmit configuration
+  const hiddenSubject = document.createElement("input");
+  hiddenSubject.type = "hidden";
+  hiddenSubject.name = "_subject";
+  hiddenSubject.value = "New Coaching Assessment Results";
+  form.appendChild(hiddenSubject);
+
+  const hiddenNext = document.createElement("input");
+  hiddenNext.type = "hidden";
+  hiddenNext.name = "_next";
+  hiddenNext.value = window.location.href;
+  form.appendChild(hiddenNext);
+
+  const hiddenCaptcha = document.createElement("input");
+  hiddenCaptcha.type = "hidden";
+  hiddenCaptcha.name = "_captcha";
+  hiddenCaptcha.value = "false";
+  form.appendChild(hiddenCaptcha);
+
+  // Score and classification hidden fields
+  const hiddenScore = document.createElement("input");
+  hiddenScore.type = "hidden";
+  hiddenScore.name = "Total Score";
+  hiddenScore.value = `${totalPoints} / 125`;
+  form.appendChild(hiddenScore);
+
+  const hiddenClassification = document.createElement("input");
+  hiddenClassification.type = "hidden";
+  hiddenClassification.name = "Classification";
+  hiddenClassification.value = classification;
+  form.appendChild(hiddenClassification);
+
+  // Dimension scores as hidden field
+  const hiddenDimensions = document.createElement("input");
+  hiddenDimensions.type = "hidden";
+  hiddenDimensions.name = "Dimension Scores";
+  hiddenDimensions.value = state.labels.map((l, i) => `${l}: ${scores[i].toFixed(2)}`).join(", ");
+  form.appendChild(hiddenDimensions);
+
+  // Name fields
+  const nameRow = document.createElement("div");
+  nameRow.style.display = "grid";
+  nameRow.style.gridTemplateColumns = "1fr 1fr";
+  nameRow.style.gap = "12px";
+
+  const firstNameWrapper = document.createElement("div");
+  const firstNameLabel = document.createElement("label");
+  firstNameLabel.textContent = "First Name";
+  firstNameLabel.style.display = "block";
+  firstNameLabel.style.marginBottom = "4px";
+  firstNameLabel.style.fontWeight = "600";
+  firstNameWrapper.appendChild(firstNameLabel);
+  const firstName = document.createElement("input");
+  firstName.type = "text";
+  firstName.name = "First Name";
+  firstName.required = true;
+  firstName.style.width = "100%";
+  firstName.style.padding = "8px 12px";
+  firstName.style.borderRadius = "8px";
+  firstName.style.border = "1px solid var(--border)";
+  firstName.style.backgroundColor = "var(--background)";
+  firstName.style.color = "var(--foreground)";
+  firstNameWrapper.appendChild(firstName);
+  nameRow.appendChild(firstNameWrapper);
+
+  const lastNameWrapper = document.createElement("div");
+  const lastNameLabel = document.createElement("label");
+  lastNameLabel.textContent = "Last Name";
+  lastNameLabel.style.display = "block";
+  lastNameLabel.style.marginBottom = "4px";
+  lastNameLabel.style.fontWeight = "600";
+  lastNameWrapper.appendChild(lastNameLabel);
+  const lastName = document.createElement("input");
+  lastName.type = "text";
+  lastName.name = "Last Name";
+  lastName.required = true;
+  lastName.style.width = "100%";
+  lastName.style.padding = "8px 12px";
+  lastName.style.borderRadius = "8px";
+  lastName.style.border = "1px solid var(--border)";
+  lastName.style.backgroundColor = "var(--background)";
+  lastName.style.color = "var(--foreground)";
+  lastNameWrapper.appendChild(lastName);
+  nameRow.appendChild(lastNameWrapper);
+
+  form.appendChild(nameRow);
+
+  // Email field
+  const emailWrapper = document.createElement("div");
+  const emailLabel = document.createElement("label");
+  emailLabel.textContent = "Email Address";
+  emailLabel.style.display = "block";
+  emailLabel.style.marginBottom = "4px";
+  emailLabel.style.fontWeight = "600";
+  emailWrapper.appendChild(emailLabel);
+  const email = document.createElement("input");
+  email.type = "email";
+  email.name = "Email";
+  email.required = true;
+  email.style.width = "100%";
+  email.style.padding = "8px 12px";
+  email.style.borderRadius = "8px";
+  email.style.border = "1px solid var(--border)";
+  email.style.backgroundColor = "var(--background)";
+  email.style.color = "var(--foreground)";
+  emailWrapper.appendChild(email);
+  form.appendChild(emailWrapper);
+
+  // Submit button
+  const submitBtn = document.createElement("button");
+  submitBtn.type = "submit";
+  submitBtn.className = "primary";
+  submitBtn.textContent = "Email My Results";
+  submitBtn.style.marginTop = "8px";
+  form.appendChild(submitBtn);
+
+  contactCard.appendChild(form);
+
   const footer = document.createElement("div");
   footer.className = "footer";
   const back = document.createElement("button"); back.textContent = "Back"; back.className = "ghost";
@@ -370,6 +509,7 @@ function renderResults(state) {
     grid,
     detailed,
     analysisCard,
+    contactCard,
     footer,
   ]);
 
